@@ -24,8 +24,20 @@ namespace EnergonSoftware.Editor
             public Node(Rect rect, string title)
             {
                 Id = NextId;
+
                 Rect = rect;
                 Title = title;
+            }
+
+            public bool HandlEvent(Event currentEvent)
+            {
+                if(EventType.MouseUp == currentEvent.type && 1 == currentEvent.button && Rect.Contains(currentEvent.mousePosition)) {
+                    OnContextClick(currentEvent.mousePosition);
+                    currentEvent.Use();
+                    return true;
+                }
+
+                return false;
             }
 
             public void Render()
@@ -33,25 +45,52 @@ namespace EnergonSoftware.Editor
                 Rect = GUI.Window(Id, Rect, OnRender, Title);
             }
 
+            protected void OnContextClick(Vector2 mousePosition)
+            {
+                GenericMenu menu = new GenericMenu();
+                menu.AddItem(new GUIContent("Delete"), false, OnDelete);
+                menu.ShowAsContext();
+            }
+
             private void OnRender(int id)
             {
                 GUI.DragWindow();
+            }
+
+            private void OnDelete()
+            {
+Debug.Log("Delete node " + Id);
             }
         }
 
         private class Edge
         {
+#region Id Generator
+            private static int LastId;
+
+            private static int NextId { get { return ++LastId; } }
+#endregion
+
+            public int Id { get; private set; }
+
             public Node A { get; set; }
 
             public Node B { get; set; }
 
             public Edge(Node a, Node b)
             {
+                Id = NextId;
+
                 A = a;
                 B = b;
             }
 
-            public void Render()
+            public bool HandlEvent(Event currentEvent)
+            {
+                return false;
+            }
+
+            public void Render(Event currentEvent)
             {
                 Color shadowCol = new Color(0.0f, 0.0f, 0.0f, 0.06f);
 
@@ -72,7 +111,8 @@ namespace EnergonSoftware.Editor
         [MenuItem("Energon Software/Node Editor")]
         public static void ShowEditor()
         {
-            GetWindow<NodeEditor>();
+            NodeEditor window = GetWindow<NodeEditor>();
+            window.Show();
         }
 
         private readonly List<Node> _nodes = new List<Node>();
@@ -80,6 +120,8 @@ namespace EnergonSoftware.Editor
 
         private NodeEditor()
         {
+            titleContent = new GUIContent { text = "Node Editor" };
+
             Node a = new Node(new Rect(10.0f, 10.0f, 100.0f, 100.0f), "Node A");
             _nodes.Add(a);
 
@@ -91,8 +133,32 @@ namespace EnergonSoftware.Editor
 
         private void OnGUI()
         {
+#region Handle events
+            bool eventHandled = false;
             foreach(Edge edge in _edges) {
-                edge.Render();
+                if(edge.HandlEvent(Event.current)) {
+                    eventHandled = true;
+                    break;
+                }
+            }
+
+            foreach(Node node in _nodes) {
+                if(!eventHandled && node.HandlEvent(Event.current)) {
+                    eventHandled = true;
+                    break;
+                }
+            }
+
+            if(!eventHandled && EventType.MouseUp == Event.current.type && 1 == Event.current.button) {
+                OnContextClick(Event.current.mousePosition);
+                Event.current.Use();
+                eventHandled = true;
+            }
+#endregion
+
+#region Render
+            foreach(Edge edge in _edges) {
+                edge.Render(Event.current);
             }
 
             BeginWindows();
@@ -100,6 +166,19 @@ namespace EnergonSoftware.Editor
                     node.Render();
                 }
             EndWindows();
+#endregion
+        }
+
+        private void OnContextClick(Vector2 mousePosition)
+        {
+            GenericMenu menu = new GenericMenu();
+            menu.AddItem(new GUIContent("Add Node"), false, OnAddNode);
+            menu.ShowAsContext();
+        }
+
+        private void OnAddNode()
+        {
+Debug.Log("Add a new node!");
         }
     }
 }
