@@ -21,28 +21,50 @@ namespace EnergonSoftware.Editor
 
             public string Title { get; private set; }
 
-            public Node(Rect rect, string title)
+            private readonly NodeEditor _owner;
+
+            public Node(Rect rect, string title, NodeEditor owner)
             {
                 Id = NextId;
+                _owner = owner;
 
                 Rect = rect;
                 Title = title;
             }
 
-            public bool HandlEvent(Event currentEvent)
+            public void Render(Event currentEvent)
             {
-                if(EventType.MouseUp == currentEvent.type && 1 == currentEvent.button && Rect.Contains(currentEvent.mousePosition)) {
-                    OnContextClick(currentEvent.mousePosition);
-                    currentEvent.Use();
-                    return true;
-                }
+                HandleEvent(currentEvent);
 
-                return false;
+                Rect = GUI.Window(Id, Rect, DoRender, Title);
             }
 
-            public void Render()
+            private void HandleEvent(Event currentEvent)
             {
-                Rect = GUI.Window(Id, Rect, OnRender, Title);
+                switch(currentEvent.type)
+                {
+                case EventType.MouseUp:
+                    if(!Rect.Contains(currentEvent.mousePosition)) {
+                        break;
+                    }
+                    OnMouseUp(currentEvent);
+                    break;
+                }
+            }
+
+            private void OnMouseUp(Event currentEvent)
+            {
+                switch(currentEvent.button)
+                {
+                case 0:
+                    break;
+                case 1:
+                    OnContextClick(currentEvent.mousePosition);
+                    currentEvent.Use();
+                    break;
+                case 2:
+                    break;
+                }
             }
 
             protected void OnContextClick(Vector2 mousePosition)
@@ -52,14 +74,14 @@ namespace EnergonSoftware.Editor
                 menu.ShowAsContext();
             }
 
-            private void OnRender(int id)
+            private void DoRender(int id)
             {
                 GUI.DragWindow();
             }
 
             private void OnDelete()
             {
-Debug.Log("Delete node " + Id);
+                _owner.DeleteNode(this);
             }
         }
 
@@ -77,21 +99,25 @@ Debug.Log("Delete node " + Id);
 
             public Node B { get; set; }
 
-            public Edge(Node a, Node b)
+            private readonly NodeEditor _owner;
+
+            private int _controlId;
+
+            public Edge(Node a, Node b, NodeEditor owner)
             {
                 Id = NextId;
+                _owner = owner;
 
                 A = a;
                 B = b;
             }
 
-            public bool HandlEvent(Event currentEvent)
-            {
-                return false;
-            }
-
             public void Render(Event currentEvent)
             {
+                _controlId = GUIUtility.GetControlID(Id, FocusType.Passive);
+
+                HandleEvent(currentEvent);
+
                 Color shadowCol = new Color(0.0f, 0.0f, 0.0f, 0.06f);
 
                 Vector3 start = new Vector3(A.Rect.x + A.Rect.width, A.Rect.y + A.Rect.height / 2.0f, 0.0f);
@@ -105,6 +131,48 @@ Debug.Log("Delete node " + Id);
                     Handles.DrawBezier(start, end, startTan, endTan, shadowCol, null, (i + 1.0f) * 5.0f);
                 }
                 Handles.DrawBezier(start, end, startTan, endTan, Color.black, null, 1.0f);
+            }
+
+            private void HandleEvent(Event currentEvent)
+            {
+                if(GUIUtility.hotControl != _controlId) {
+                    return;
+                }
+
+                EventType type = currentEvent.GetTypeForControl(_controlId);
+                switch(type)
+                {
+                case EventType.MouseUp:
+                    OnMouseUp(currentEvent);
+                    break;
+                }
+            }
+
+            private void OnMouseUp(Event currentEvent)
+            {
+                switch(currentEvent.button)
+                {
+                case 0:
+                    break;
+                case 1:
+                    OnContextClick(currentEvent.mousePosition);
+                    currentEvent.Use();
+                    break;
+                case 2:
+                    break;
+                }
+            }
+
+            protected void OnContextClick(Vector2 mousePosition)
+            {
+                GenericMenu menu = new GenericMenu();
+                menu.AddItem(new GUIContent("Delete"), false, OnDelete);
+                menu.ShowAsContext();
+            }
+
+            private void OnDelete()
+            {
+                _owner.DeleteEdge(this);
             }
         }
 
@@ -122,63 +190,61 @@ Debug.Log("Delete node " + Id);
         {
             titleContent = new GUIContent { text = "Node Editor" };
 
-            Node a = new Node(new Rect(10.0f, 10.0f, 100.0f, 100.0f), "Node A");
+            Node a = new Node(new Rect(10.0f, 10.0f, 100.0f, 100.0f), "Node A", this);
             _nodes.Add(a);
 
-            Node b = new Node(new Rect(300.0f, 300.0f, 100.0f, 100.0f), "Node B");
+            Node b = new Node(new Rect(300.0f, 300.0f, 100.0f, 100.0f), "Node B", this);
             _nodes.Add(b);
 
-            _edges.Add(new Edge(a, b));
+            _edges.Add(new Edge(a, b, this));
+        }
+
+        private void DeleteNode(Node node)
+        {
+            _nodes.Remove(node);
+// TODO: update edges
+        }
+
+        private void DeleteEdge(Edge edge)
+        {
+            _edges.Remove(edge);
         }
 
         private void OnGUI()
         {
-#region Handle events
-            bool eventHandled = false;
-            foreach(Edge edge in _edges) {
-                if(edge.HandlEvent(Event.current)) {
-                    eventHandled = true;
-                    break;
-                }
-            }
+            //GUI.BeginGroup();
 
-            foreach(Node node in _nodes) {
-                if(!eventHandled && node.HandlEvent(Event.current)) {
-                    eventHandled = true;
-                    break;
-                }
-            }
-
-            if(!eventHandled && EventType.MouseUp == Event.current.type && 1 == Event.current.button) {
-                OnContextClick(Event.current.mousePosition);
-                Event.current.Use();
-                eventHandled = true;
-            }
-#endregion
-
-#region Render
             foreach(Edge edge in _edges) {
                 edge.Render(Event.current);
             }
 
             BeginWindows();
                 foreach(Node node in _nodes) {
-                    node.Render();
+                    node.Render(Event.current);
                 }
             EndWindows();
-#endregion
+
+            //GUI.EndGroup();
+
+            if(EventType.MouseUp == Event.current.type && 1 == Event.current.button) {
+                OnContextClick(Event.current.mousePosition);
+                Event.current.Use();
+            }
         }
 
         private void OnContextClick(Vector2 mousePosition)
         {
             GenericMenu menu = new GenericMenu();
-            menu.AddItem(new GUIContent("Add Node"), false, OnAddNode);
+            menu.AddItem(new GUIContent("Add Node"), false, OnAddNode, mousePosition);
             menu.ShowAsContext();
         }
 
-        private void OnAddNode()
+        private void OnAddNode(object obj)
         {
-Debug.Log("Add a new node!");
+            Vector2 mousePosition = (Vector2)obj;
+
+            Node node = new Node(new Rect(mousePosition.x, mousePosition.y, 100.0f, 100.0f), "Node", this);
+            _nodes.Add(node);
         }
     }
 }
