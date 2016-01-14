@@ -40,7 +40,8 @@ namespace EnergonSoftware.Editor
                     if(!Rect.Contains(currentEvent.mousePosition)) {
                         break;
                     }
-                    OnMouseUp(currentEvent);
+                    OnMouseUp(currentEvent.button, currentEvent.mousePosition);
+                    currentEvent.Use();
                     return true;
                 }
                 return false;
@@ -51,22 +52,26 @@ namespace EnergonSoftware.Editor
                 Rect = GUI.Window(Id, Rect, DoRender, Title);
             }
 
-            private void OnMouseUp(Event currentEvent)
+            private void OnMouseUp(int button, Vector2 mousePosition)
             {
-                switch(currentEvent.button)
+                switch(button)
                 {
                 case 0:
+                    OnLeftClick(mousePosition);
                     break;
                 case 1:
-                    OnContextClick(currentEvent.mousePosition);
-                    currentEvent.Use();
+                    OnRightClick(mousePosition);
                     break;
                 case 2:
                     break;
                 }
             }
 
-            protected void OnContextClick(Vector2 mousePosition)
+            protected void OnLeftClick(Vector2 mousePosition)
+            {
+            }
+
+            protected void OnRightClick(Vector2 mousePosition)
             {
                 GenericMenu menu = new GenericMenu();
                 menu.AddItem(new GUIContent("Add Edge"), false, OnAddEdge);
@@ -153,7 +158,8 @@ namespace EnergonSoftware.Editor
                     if(HandleUtility.DistancePointBezier(currentEvent.mousePosition, startPosition, endPosition, startTangent, endTangent) > ClickEpsilon) {
                         break;
                     }
-                    OnMouseUp(currentEvent);
+                    OnMouseUp(currentEvent.button, currentEvent.mousePosition);
+                    currentEvent.Use();
                     return true;
                 }
                 return false;
@@ -176,22 +182,26 @@ namespace EnergonSoftware.Editor
                 Handles.DrawBezier(startPosition, endPosition, startTangent, endTangent, Color.black, null, 1.0f);
             }
 
-            private void OnMouseUp(Event currentEvent)
+            private void OnMouseUp(int button, Vector2 mousePosition)
             {
-                switch(currentEvent.button)
+                switch(button)
                 {
                 case 0:
+                    OnLeftClick(mousePosition);
                     break;
                 case 1:
-                    OnContextClick(currentEvent.mousePosition);
-                    currentEvent.Use();
+                    OnRightClick(mousePosition);
                     break;
                 case 2:
                     break;
                 }
             }
 
-            protected void OnContextClick(Vector2 mousePosition)
+            protected void OnLeftClick(Vector2 mousePosition)
+            {
+            }
+
+            protected void OnRightClick(Vector2 mousePosition)
             {
                 GenericMenu menu = new GenericMenu();
                 menu.AddItem(new GUIContent("Delete Edge"), false, OnDelete);
@@ -274,29 +284,34 @@ namespace EnergonSoftware.Editor
             switch(currentEvent.type)
             {
             case EventType.MouseUp:
-                OnMouseUp(currentEvent);
+                OnMouseUp(currentEvent.button, currentEvent.mousePosition);
+                currentEvent.Use();
                 return true;
             }
 
             return false;
         }
 
-        private void OnMouseUp(Event currentEvent)
+        private void OnMouseUp(int button, Vector2 mousePosition)
         {
-            switch(currentEvent.button)
+            switch(button)
             {
             case 0:
+                OnLeftClick(mousePosition);
                 break;
             case 1:
-                OnContextClick(currentEvent.mousePosition);
-                currentEvent.Use();
+                OnRightClick(mousePosition);
                 break;
             case 2:
                 break;
             }
         }
 
-        private void OnContextClick(Vector2 mousePosition)
+        private void OnLeftClick(Vector2 mousePosition)
+        {
+        }
+
+        private void OnRightClick(Vector2 mousePosition)
         {
             GenericMenu menu = new GenericMenu();
             menu.AddItem(new GUIContent("Add Node"), false, OnAddNode, mousePosition);
@@ -309,6 +324,21 @@ namespace EnergonSoftware.Editor
 
             Node node = new Node(new Rect(mousePosition.x, mousePosition.y, 100.0f, 100.0f), "Node", this);
             _nodes.Add(node);
+        }
+    }
+
+    public class TestNode
+    {
+    }
+
+// http://forum.unity3d.com/threads/simple-node-editor.189230/page-3
+
+    [CustomEditor(typeof(TestNode))]
+    public class TestNodeInspector : UnityEditor.Editor
+    {
+        public override void OnInspectorGUI()
+        {
+            //DrawDefaultInspector();
         }
     }
 }
