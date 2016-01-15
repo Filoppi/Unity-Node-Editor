@@ -1,0 +1,62 @@
+********************************************************************************
+*                    Thursday, January 14, 2016 7:30:10 PM                     *
+********************************************************************************
+CSharpCompilerWrapper.exe version: 1.6.1.0
+Platform: Windows
+Target assembly: Assembly-CSharp-Editor.dll
+Project directory: C:\Users\ignig\OneDrive\Documents\GitHub\Unity-Node-Editor\Unity-Node Editor
+Unity 'Data' or 'Frameworks' directory: C:/Program Files/Unity/Editor/Data
+Compiler: Microsoft C# 6.0
+
+- Compilation -----------------------------------------------
+
+Process: C:\Users\ignig\OneDrive\Documents\GitHub\Unity-Node-Editor\Unity-Node Editor\CSharp60Support\Roslyn\csc.exe
+Arguments: -nostdlib+ -noconfig -r:"C:/Program Files/Unity/Editor/Data\Mono/lib/mono/2.0/mscorlib.dll" -r:"C:/Program Files/Unity/Editor/Data\Mono/lib/mono/2.0/System.dll" -r:"C:/Program Files/Unity/Editor/Data\Mono/lib/mono/2.0/System.Core.dll" -r:"C:/Program Files/Unity/Editor/Data\Mono/lib/mono/2.0/System.Xml.dll" @Temp/UnityTempFile-6eb40f35a4e830f4d9935d882c484c4e
+Exit code: 0
+Elapsed time: 3.34 sec
+
+- Compiler output (2 lines):
+0: Microsoft (R) Visual C# Compiler version 1.0.0.50618
+1: Copyright (C) Microsoft Corporation. All rights reserved.
+
+- Compiler errors (0 lines):
+
+- PDB to MDB conversion --------------------------------------
+
+Process: C:\Users\ignig\OneDrive\Documents\GitHub\Unity-Node-Editor\Unity-Node Editor\CSharp60Support\Roslyn\pdb2mdb.exe
+Arguments: Temp\Assembly-CSharp-Editor.dll
+Exit code: 0
+Elapsed time: 0.17 sec
+
+- pdb2mdb.exe output (0 lines):
+********************************************************************************
+*                    Thursday, January 14, 2016 7:32:07 PM                     *
+********************************************************************************
+CSharpCompilerWrapper.exe version: 1.6.1.0
+Platform: Windows
+Target assembly: Assembly-CSharp-Editor.dll
+Project directory: C:\Users\ignig\OneDrive\Documents\GitHub\Unity-Node-Editor\Unity-Node Editor
+Unity 'Data' or 'Frameworks' directory: C:/Program Files/Unity/Editor/Data
+Compiler: Microsoft C# 6.0
+
+- Compilation -----------------------------------------------
+
+Process: C:\Users\ignig\OneDrive\Documents\GitHub\Unity-Node-Editor\Unity-Node Editor\CSharp60Support\Roslyn\csc.exe
+Arguments: -nostdlib+ -noconfig -r:"C:/Program Files/Unity/Editor/Data\Mono/lib/mono/2.0/mscorlib.dll" -r:"C:/Program Files/Unity/Editor/Data\Mono/lib/mono/2.0/System.dll" -r:"C:/Program Files/Unity/Editor/Data\Mono/lib/mono/2.0/System.Core.dll" -r:"C:/Program Files/Unity/Editor/Data\Mono/lib/mono/2.0/System.Xml.dll" @Temp/UnityTempFile-d4ac0429304277e4ab50a35e5cccad53
+Exit code: 0
+Elapsed time: 3.18 sec
+
+- Compiler output (2 lines):
+0: Microsoft (R) Visual C# Compiler version 1.0.0.50618
+1: Copyright (C) Microsoft Corporation. All rights reserved.
+
+- Compiler errors (0 lines):
+
+- PDB to MDB conversion --------------------------------------
+
+Process: C:\Users\ignig\OneDrive\Documents\GitHub\Unity-Node-Editor\Unity-Node Editor\CSharp60Support\Roslyn\pdb2mdb.exe
+Arguments: Temp\Assembly-CSharp-Editor.dll
+Exit code: 0
+Elapsed time: 0.14 sec
+
+- pdb2mdb.exe output (0 lines):
