@@ -19,6 +19,9 @@ namespace EnergonSoftware.Editor
 
         public NodeEditorNode B { get; set; }
 
+// TODO: add a setting for using either straight arrows or bezier arrows
+// TODO: add arrow direction indicators
+
         private readonly NodeEditor _owner;
 
         protected NodeEditorEdge(NodeEditorNode a, NodeEditorNode b, NodeEditor owner)

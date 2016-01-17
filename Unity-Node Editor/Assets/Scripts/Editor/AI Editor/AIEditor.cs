@@ -3,17 +3,17 @@ using UnityEngine;
 
 namespace EnergonSoftware.Editor
 {
-    public sealed class SequenceEditor : NodeEditor
+    public sealed class AIEditor : NodeEditor
     {
-        [MenuItem("Energon Software/Sequence Editor")]
+        [MenuItem("Energon Software/AI Editor")]
         public static void ShowEditor()
         {
-            SequenceEditor window = GetWindow<SequenceEditor>();
+            AIEditor window = GetWindow<AIEditor>();
             window.Show();
         }
 
-        public SequenceEditor()
-            : base("Sequence Editor")
+        public AIEditor()
+            : base("AI Editor")
         {
 #region TEST JUNK PLEASE REMOVE
             SequenceEditorNode a = new SequenceEditorNode(new Rect(10.0f, 10.0f, 100.0f, 100.0f), "Node A", this);

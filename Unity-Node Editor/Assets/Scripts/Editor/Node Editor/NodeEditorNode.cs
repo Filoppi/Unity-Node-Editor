@@ -15,7 +15,12 @@ namespace EnergonSoftware.Editor
 
         public Rect Rect { get; private set; }
 
-        public string Title { get; }
+        public bool IsResizable { get; set; }
+
+        public string Title { get; set; }
+
+// TODO: resizing
+// TODO: add edge connection points
 
         private readonly NodeEditor _owner;
 
@@ -87,6 +92,8 @@ namespace EnergonSoftware.Editor
         private void DoRender(int id)
         {
             GUI.DragWindow();
+
+// http://forum.unity3d.com/threads/simple-node-editor.189230/#post-1719143 for resize
         }
     }
 }
