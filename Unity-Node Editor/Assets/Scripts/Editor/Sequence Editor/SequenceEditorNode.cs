@@ -6,8 +6,13 @@ namespace EnergonSoftware.Editor
     public sealed class SequenceEditorNode : NodeEditorNode
     {
         public SequenceEditorNode(Vector2 position, string title, NodeEditor owner)
-            : base(new Rect(position.x, position.y, 100.0f, 100.0f), title, owner)
+            : base(new Rect(position.x, position.y, 300.0f, 200.0f), title, owner)
         {
+        }
+
+        protected override void OnRender()
+        {
+            GUILayout.Label("Test Content");
         }
 
         protected override void OnRightClick(Vector2 mousePosition)

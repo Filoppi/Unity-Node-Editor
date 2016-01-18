@@ -88,9 +88,15 @@ namespace EnergonSoftware.Editor
 
         private void DoRender(int id)
         {
+            OnRender();
+
             GUI.DragWindow();
 
 // http://forum.unity3d.com/threads/simple-node-editor.189230/#post-1719143 for resize
+        }
+
+        protected virtual void OnRender()
+        {
         }
     }
 }
