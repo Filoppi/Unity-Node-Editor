@@ -1,10 +1,14 @@
-﻿using UnityEditor;
+﻿using EnergonSoftware.Data;
+
+using UnityEditor;
 using UnityEngine;
 
 namespace EnergonSoftware.Editor
 {
     public sealed class SequenceEditor : NodeEditor
     {
+        private const string TestAssetPath = "Assets/Data/test_sequence.asset";
+
         [MenuItem("Energon Software/Sequence Editor")]
         public static void ShowEditor()
         {
@@ -15,6 +19,22 @@ namespace EnergonSoftware.Editor
         public SequenceEditor()
             : base("Sequence Editor")
         {
+        }
+
+        private void OnEnable()
+        {
+            LoadData();
+        }
+
+        private void LoadData()
+        {
+            Debug.Log($"Loading sequence data from '{TestAssetPath}'...");
+
+            SequenceData data = AssetDatabase.LoadAssetAtPath<SequenceData>(TestAssetPath);
+            if(null == data) {
+                Debug.LogError("Could not load sequence data!");
+            }
+
 #region TEST JUNK PLEASE REMOVE
             SequenceEditorNode a = new SequenceEditorNode(new Vector2(10.0f, 10.0f), "Action A", this);
             AddNode(a);
