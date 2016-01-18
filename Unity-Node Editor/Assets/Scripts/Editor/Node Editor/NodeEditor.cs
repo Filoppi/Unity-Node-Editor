@@ -9,7 +9,9 @@ namespace EnergonSoftware.Editor
     {
         private readonly List<NodeEditorNode> _nodes = new List<NodeEditorNode>();
 
-        private readonly List<NodeEditorEdge> _edges = new List<NodeEditorEdge>(); 
+        private readonly List<NodeEditorEdge> _edges = new List<NodeEditorEdge>();
+
+        private Vector2 _scrollPosition;
 
         protected NodeEditor(string title)
         {
@@ -49,7 +51,7 @@ namespace EnergonSoftware.Editor
         {
             HandleEvent(Event.current);
 
-            //GUI.BeginGroup();
+            _scrollPosition = EditorGUILayout.BeginScrollView(_scrollPosition);
 
             foreach(NodeEditorEdge edge in _edges) {
                 edge.Render(Event.current);
@@ -61,7 +63,7 @@ namespace EnergonSoftware.Editor
                 }
             EndWindows();
 
-            //GUI.EndGroup();
+            EditorGUILayout.EndScrollView();
         }
 
         private bool HandleEvent(Event currentEvent)

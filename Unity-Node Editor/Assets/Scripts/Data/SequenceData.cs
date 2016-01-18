@@ -5,6 +5,12 @@ using UnityEngine;
 namespace EnergonSoftware.Data
 {
     [Serializable]
+    public class SequenceAction
+    {
+        public string Id = string.Empty;
+    }
+
+    [Serializable]
     public class SequenceData : ScriptableObject
     {
 #if UNITY_EDITOR
@@ -15,9 +21,9 @@ namespace EnergonSoftware.Data
         }
 #endif
 
-        public string sequenceName = string.Empty;
+        public string Id = string.Empty;
 
         [Range(0.0f, 100.0f)]
-        public int priority = 0;
+        public int Priority = 50;
     }
 }
