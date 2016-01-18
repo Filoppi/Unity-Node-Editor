@@ -16,13 +16,17 @@ namespace EnergonSoftware.Editor
             : base("AI Editor")
         {
 #region TEST JUNK PLEASE REMOVE
-            SequenceEditorNode a = new SequenceEditorNode(new Rect(10.0f, 10.0f, 100.0f, 100.0f), "Node A", this);
+            AIEditorNode a = new AIEditorNode(new Vector2(10.0f, 10.0f), "Action A", this);
             AddNode(a);
 
-            SequenceEditorNode b = new SequenceEditorNode(new Rect(300.0f, 300.0f, 100.0f, 100.0f), "Node B", this);
+            AIEditorNode b = new AIEditorNode(new Vector2(300.0f, 300.0f), "Action B", this);
             AddNode(b);
 
-            SequenceEditorEdge edge = new SequenceEditorEdge(a, b, this);
+            AIEditorEdge edge = new AIEditorEdge(this)
+            {
+                StartNode = a,
+                EndNode = b
+            };
             AddEdge(edge);
 #endregion
         }

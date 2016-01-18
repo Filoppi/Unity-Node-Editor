@@ -3,9 +3,9 @@ using UnityEngine;
 
 namespace EnergonSoftware.Editor
 {
-    public sealed class SequenceEditorEdge : NodeEditorEdge
+    public sealed class AIEditorEdge : NodeEditorEdge
     {
-        public SequenceEditorEdge(NodeEditor owner)
+        public AIEditorEdge(NodeEditor owner)
             : base(owner)
         {
         }
@@ -15,7 +15,7 @@ namespace EnergonSoftware.Editor
             base.OnRightClick(mousePosition);
 
             GenericMenu menu = new GenericMenu();
-            menu.AddItem(new GUIContent("Delete Sequence Connection"), false, Delete);
+            menu.AddItem(new GUIContent("Delete State Transition"), false, Delete);
             menu.ShowAsContext();
         }
     }

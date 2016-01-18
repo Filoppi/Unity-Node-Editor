@@ -3,6 +3,12 @@ using UnityEngine;
 
 namespace EnergonSoftware.Editor
 {
+    public enum NodeEditorEdgeType
+    {
+        Line,
+        Bezier
+    }
+
     public abstract class NodeEditorEdge
     {
         private const float ClickEpsilon = 5.0f;
@@ -15,81 +21,102 @@ namespace EnergonSoftware.Editor
 
         public int Id { get; } = NextId;
 
-        public NodeEditorNode A { get; set; }
+        public NodeEditorEdgeType Type { get; set; } = NodeEditorEdgeType.Line;
 
-        public NodeEditorNode B { get; set; }
-
-// TODO: add a setting for using either straight arrows or bezier arrows
 // TODO: add arrow direction indicators
+
+#region Start
+        public NodeEditorNode StartNode { get; set; }
+
+        public Vector3 StartPosition { get; set; }
+
+// TODO: this should use the node connection points
+        private Vector3 RenderStart => null == StartNode ? StartPosition : new Vector3(StartNode.Rect.x + StartNode.Rect.width, StartNode.Rect.y + StartNode.Rect.height / 2.0f);
+
+        private Vector3 StartBezierTangent => RenderStart + Vector3.right * 50.0f;
+#endregion
+
+#region End
+        public NodeEditorNode EndNode { get; set; }
+
+        public Vector3 EndPosition { get; set; }
+
+// TODO: this should use the node connection points
+        private Vector3 RenderEnd => null == EndNode ? EndPosition : new Vector3(EndNode.Rect.x, EndNode.Rect.y + EndNode.Rect.height / 2.0f);
+
+        private Vector3 EndBezierTangent => RenderEnd + Vector3.left * 50.0f;
+#endregion
+
+#region Shadow
+        public bool HasShadow { get; set; } = true;
+
+        public Color ShadowColor { get; set; } = Color.gray;
+#endregion
+
+        public Color Color { get; } = Color.black;
 
         private readonly NodeEditor _owner;
 
-        protected NodeEditorEdge(NodeEditorNode a, NodeEditorNode b, NodeEditor owner)
+        protected NodeEditorEdge(NodeEditor owner)
         {
             _owner = owner;
-
-            A = a;
-            B = b;
         }
 
-#region TODO: encapsulate this better
-        private Vector3 GetStartPosition()
+#region Disconnect
+        public void DisconnectStart()
         {
-            return new Vector3(A.Rect.x + A.Rect.width, A.Rect.y + A.Rect.height / 2.0f, 0.0f);
+            if(null == StartNode) {
+                return;
+            }
+
+// TODO: this should use the node connection points
+            StartPosition = new Vector3(StartNode.Rect.x + StartNode.Rect.width, StartNode.Rect.y + StartNode.Rect.height / 2.0f);
+            StartNode = null;
         }
 
-        private Vector3 GetEndPosition()
+        public void DisconnectEnd()
         {
-            return new Vector3(B.Rect.x, B.Rect.y + B.Rect.height / 2.0f, 0.0f);
-        }
+            if(null == EndNode) {
+                return;
+            }
 
-        private Vector3 GetStartTangent(Vector3 startPosition)
-        {
-            return startPosition + Vector3.right * 50.0f;
-        }
-
-        private Vector3 GetEndTangent(Vector3 endPosition)
-        {
-            return endPosition + Vector3.left * 50.0f;
+// TODO: this should use the node connection points
+            EndPosition = new Vector3(EndNode.Rect.x, EndNode.Rect.y + EndNode.Rect.height / 2.0f);
+            EndNode = null;
         }
 #endregion
 
+        public void Delete()
+        {
+            _owner.DeleteEdge(this);
+        }
+
+        public bool IsPointCloseTo(Vector2 point)
+        {
+            switch(Type)
+            {
+            case NodeEditorEdgeType.Line:
+                return HandleUtility.DistancePointLine(point, RenderStart, RenderEnd) < ClickEpsilon;
+            case NodeEditorEdgeType.Bezier:
+                return HandleUtility.DistancePointBezier(point, RenderStart, RenderEnd, StartBezierTangent, EndBezierTangent) < ClickEpsilon;
+            }
+            return false;
+        }
+
         public bool HandleEvent(Event currentEvent)
         {
-            Vector3 startPosition = GetStartPosition();
-            Vector3 startTangent = GetStartTangent(startPosition);
-
-            Vector3 endPosition = GetEndPosition();
-            Vector3 endTangent = GetEndTangent(endPosition);
-
             switch(currentEvent.type)
             {
             case EventType.MouseUp:
-                if(HandleUtility.DistancePointBezier(currentEvent.mousePosition, startPosition, endPosition, startTangent, endTangent) > ClickEpsilon) {
+                if(!IsPointCloseTo(currentEvent.mousePosition)) {
                     break;
                 }
+
                 OnMouseUp(currentEvent.button, currentEvent.mousePosition);
                 currentEvent.Use();
                 return true;
             }
             return false;
-        }
-
-        public void Render(Event currentEvent)
-        {
-            Color shadowColor = new Color(0.0f, 0.0f, 0.0f, 0.06f);
-
-            Vector3 startPosition = GetStartPosition();
-            Vector3 startTangent = GetStartTangent(startPosition);
-
-            Vector3 endPosition = GetEndPosition();
-            Vector3 endTangent = GetEndTangent(endPosition);
-
-            // shadow
-            for(int i=0; i<3; ++i) {
-                Handles.DrawBezier(startPosition, endPosition, startTangent, endTangent, shadowColor, null, (i + 1.0f) * 5.0f);
-            }
-            Handles.DrawBezier(startPosition, endPosition, startTangent, endTangent, Color.black, null, 1.0f);
         }
 
         private void OnMouseUp(int button, Vector2 mousePosition)
@@ -107,20 +134,54 @@ namespace EnergonSoftware.Editor
             }
         }
 
-        protected void OnLeftClick(Vector2 mousePosition)
+        protected virtual void OnLeftClick(Vector2 mousePosition)
         {
         }
 
-        protected void OnRightClick(Vector2 mousePosition)
+        protected virtual void OnRightClick(Vector2 mousePosition)
         {
-            GenericMenu menu = new GenericMenu();
-            menu.AddItem(new GUIContent("Delete Edge"), false, OnDelete);
-            menu.ShowAsContext();
         }
 
-        private void OnDelete()
+        public void Render(Event currentEvent)
         {
-            _owner.DeleteEdge(this);
+            switch(Type)
+            {
+            case NodeEditorEdgeType.Line:
+                RenderLine();
+                break;
+            case NodeEditorEdgeType.Bezier:
+                RenderBezier();
+                break;
+            }
+        }
+
+        private void RenderLine()
+        {
+            Vector3 startPosition = RenderStart;
+            Vector3 endPosition = RenderEnd;
+
+            // TODO: shadow!
+
+            Color oldColor = Handles.color;
+            Handles.color = Color;
+            Handles.DrawLine(startPosition, endPosition);
+            Handles.color = oldColor;
+        }
+
+        private void RenderBezier()
+        {
+            Vector3 startPosition = RenderStart;
+            Vector3 startTangent = StartBezierTangent;
+
+            Vector3 endPosition = RenderEnd;
+            Vector3 endTangent = EndBezierTangent;
+
+            if(HasShadow) {
+                for(int i=0; i<3; ++i) {
+                    Handles.DrawBezier(startPosition, endPosition, startTangent, endTangent, ShadowColor, null, (i + 1.0f) * 5.0f);
+                }
+            }
+            Handles.DrawBezier(startPosition, endPosition, startTangent, endTangent, Color, null, 1.0f);
         }
     }
 }

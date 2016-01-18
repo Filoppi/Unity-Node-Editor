@@ -24,7 +24,15 @@ namespace EnergonSoftware.Editor
         public void DeleteNode(NodeEditorNode node)
         {
             _nodes.Remove(node);
-// TODO: update edges
+            foreach(NodeEditorEdge edge in _edges) {
+                if(edge.StartNode == node) {
+                    edge.DisconnectStart();
+                }
+
+                if(edge.EndNode == node) {
+                    edge.DisconnectEnd();
+                }
+            }
         }
 
         protected void AddEdge(NodeEditorEdge edge)
@@ -96,23 +104,12 @@ namespace EnergonSoftware.Editor
             }
         }
 
-        private void OnLeftClick(Vector2 mousePosition)
+        protected virtual void OnLeftClick(Vector2 mousePosition)
         {
         }
 
-        private void OnRightClick(Vector2 mousePosition)
+        protected virtual void OnRightClick(Vector2 mousePosition)
         {
-            GenericMenu menu = new GenericMenu();
-            menu.AddItem(new GUIContent("Add Node"), false, OnAddNode, mousePosition);
-            menu.ShowAsContext();
-        }
-
-        private void OnAddNode(object obj)
-        {
-            Vector2 mousePosition = (Vector2)obj;
-
-            /*NodeEditorNode node = new NodeEditorNode(new Rect(mousePosition.x, mousePosition.y, 100.0f, 100.0f), "Node", this);
-            _nodes.Add(node);*/
         }
     }
 }

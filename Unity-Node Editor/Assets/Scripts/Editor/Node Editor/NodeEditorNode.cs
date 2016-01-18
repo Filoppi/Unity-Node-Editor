@@ -1,5 +1,4 @@
-﻿using UnityEditor;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace EnergonSoftware.Editor
 {
@@ -20,7 +19,8 @@ namespace EnergonSoftware.Editor
         public string Title { get; set; }
 
 // TODO: resizing
-// TODO: add edge connection points
+
+// TODO: add edge connection points (edges should connect to these rather than deriving from the Rect)
 
         private readonly NodeEditor _owner;
 
@@ -32,6 +32,16 @@ namespace EnergonSoftware.Editor
             Title = title;
         }
 
+        public void AddEdge()
+        {
+            Debug.Log("TODO: add an edge!");
+        }
+
+        public void Delete()
+        {
+            _owner.DeleteNode(this);
+        }
+
         public bool HandleEvent(Event currentEvent)
         {
             switch(currentEvent.type)
@@ -40,16 +50,12 @@ namespace EnergonSoftware.Editor
                 if(!Rect.Contains(currentEvent.mousePosition)) {
                     break;
                 }
+
                 OnMouseUp(currentEvent.button, currentEvent.mousePosition);
                 currentEvent.Use();
                 return true;
             }
             return false;
-        }
-
-        public void Render(Event currentEvent)
-        {
-            Rect = GUI.Window(Id, Rect, DoRender, Title);
         }
 
         private void OnMouseUp(int button, Vector2 mousePosition)
@@ -67,26 +73,17 @@ namespace EnergonSoftware.Editor
             }
         }
 
-        protected void OnLeftClick(Vector2 mousePosition)
+        protected virtual void OnLeftClick(Vector2 mousePosition)
         {
         }
 
-        protected void OnRightClick(Vector2 mousePosition)
+        protected virtual void OnRightClick(Vector2 mousePosition)
         {
-            GenericMenu menu = new GenericMenu();
-            menu.AddItem(new GUIContent("Add Edge"), false, OnAddEdge);
-            menu.AddItem(new GUIContent("Delete Node"), false, OnDelete);
-            menu.ShowAsContext();
         }
 
-        private void OnAddEdge()
+        public void Render(Event currentEvent)
         {
-            Debug.Log("TODO: add an edge!");
-        }
-
-        private void OnDelete()
-        {
-            _owner.DeleteNode(this);
+            Rect = GUI.Window(Id, Rect, DoRender, Title);
         }
 
         private void DoRender(int id)
