@@ -1,4 +1,7 @@
-﻿using EnergonSoftware.Data;
+﻿using System.Collections.Generic;
+
+using EnergonSoftware.Data;
+using EnergonSoftware.Util;
 
 using UnityEditor;
 using UnityEngine;
@@ -15,6 +18,8 @@ namespace EnergonSoftware.Editor
             AIEditor window = GetWindow<AIEditor>();
             window.Show();
         }
+
+        private readonly Dictionary<string, AIEditorNode> _states = new Dictionary<string, AIEditorNode>(); 
 
         public AIEditor()
             : base("AI Editor")
@@ -36,20 +41,34 @@ namespace EnergonSoftware.Editor
                 return;
             }
 
-#region TEST JUNK PLEASE REMOVE
-            AIEditorNode a = new AIEditorNode(new Vector2(10.0f, 10.0f), "Action A", this);
-            AddNode(a);
+            foreach(AIState state in data.States) {
+                AIEditorNode stateNode = new AIEditorNode(state.EditorPosition, state.Name, this);
+                AddNode(stateNode);
 
-            AIEditorNode b = new AIEditorNode(new Vector2(300.0f, 300.0f), "Action B", this);
-            AddNode(b);
+                // TODO: check for overwrites
+                _states[state.Id] = stateNode;
+            }
 
-            AIEditorEdge edge = new AIEditorEdge(this)
-            {
-                StartNode = a,
-                EndNode = b
-            };
-            AddEdge(edge);
-#endregion
+            foreach(AIStateTransition stateTransition in data.StateTransitions) {
+                AIEditorNode startNode = _states.GetOrDefault(stateTransition.StartState);
+                if(null == startNode) {
+                    Debug.Log($"No such start state {stateTransition.StartState}!");
+                    continue;
+                }
+
+                AIEditorNode endNode = _states.GetOrDefault(stateTransition.EndState);
+                if(null == endNode) {
+                    Debug.Log($"No such end state {stateTransition.EndState}!");
+                    continue;
+                }
+
+                AIEditorEdge stateEdge = new AIEditorEdge(this)
+                {
+                    StartNode = startNode,
+                    EndNode = endNode
+                };
+                AddEdge(stateEdge);
+            }
         }
 
         protected override void OnRightClick(Vector2 mousePosition)
